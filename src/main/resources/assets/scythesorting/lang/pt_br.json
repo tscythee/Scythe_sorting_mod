@@ -1,0 +1,53 @@
+{
+  "_comment": "Scythe Sorting - Português (Brasil) localização",
+
+  "modmenu.nameTranslation.scythesorting": "Scythe Sorting",
+  "modmenu.descriptionTranslation.scythesorting": "Um mod de organização de inventário apenas para o cliente. Organize seus inventários de forma rápida e eficiente.",
+
+  "key.scythesorting.sort": "Organizar Inventário",
+  "category.scythesorting": "Scythe Sorting",
+
+  "scythesorting.button.sort": "Organizar",
+  "scythesorting.button.sort.tooltip": "Organizar Inventário",
+
+  "scythesorting.config.title": "Configurações do Scythe Sorting",
+
+  "scythesorting.config.category.sorting": "Organização",
+  "scythesorting.config.category.button": "Botão",
+  "scythesorting.config.category.custom_order": "Ordem Personalizada",
+
+  "scythesorting.config.sorting_mode": "Modo de Organização",
+  "scythesorting.config.sorting_mode.tooltip": "Escolha como os itens são organizados no inventário.",
+  "scythesorting.config.ascending_order": "Ordem Crescente",
+  "scythesorting.config.ascending_order.tooltip": "Organiza os itens em ordem crescente (A-Z, menor primeiro). Desative para ordem decrescente.",
+  "scythesorting.config.merge_stacks": "Juntar Pilhas Antes de Organizar",
+  "scythesorting.config.merge_stacks.tooltip": "Junta pilhas de itens idênticos antes de organizar para liberar espaço no inventário.",
+  "scythesorting.config.remember_mode": "Lembrar Último Modo de Organização",
+  "scythesorting.config.remember_mode.tooltip": "Lembra o último modo de organização selecionado entre sessões de jogo.",
+
+  "scythesorting.config.show_button": "Mostrar Botão de Organização",
+  "scythesorting.config.show_button.tooltip": "Exibe o botão de organização nas interfaces de inventário.",
+  "scythesorting.config.button_position": "Posição do Botão",
+  "scythesorting.config.button_position.tooltip": "Escolha onde o botão de organização aparece na interface de inventário.",
+  "scythesorting.config.play_sound": "Reproduzir Som ao Organizar",
+  "scythesorting.config.play_sound.tooltip": "Reproduz um som de clique quando a organização é acionada.",
+  "scythesorting.config.animate_button": "Animar Botão",
+  "scythesorting.config.animate_button.tooltip": "Exibe uma breve animação quando o botão de organização é clicado.",
+
+  "scythesorting.config.custom_order": "Ordem de Categorias Personalizada",
+  "scythesorting.config.custom_order.tooltip": "Define a ordem das categorias de itens ao usar o modo de organização Personalizado. Use os nomes das categorias: BUILDING_BLOCKS, NATURAL_BLOCKS, ORES, INGOTS, GEMS, REDSTONE, WOOD, STONE, DECORATION, FOOD, FARMING, TOOLS, WEAPONS, ARMOR, POTIONS, UTILITY, MOB_DROPS, MISC.",
+
+  "scythesorting.sorting_mode.smart": "Inteligente (Padrão)",
+  "scythesorting.sorting_mode.quantity": "Por Quantidade",
+  "scythesorting.sorting_mode.alphabetical": "Alfabética",
+  "scythesorting.sorting_mode.item_type": "Por Tipo de Item",
+  "scythesorting.sorting_mode.blocks_first": "Blocos Primeiro",
+  "scythesorting.sorting_mode.equipment_first": "Equipamentos Primeiro",
+  "scythesorting.sorting_mode.ores_and_resources": "Minérios e Recursos",
+  "scythesorting.sorting_mode.custom": "Ordem Personalizada",
+
+  "scythesorting.button_position.top_left": "Superior Esquerdo",
+  "scythesorting.button_position.top_right": "Superior Direito",
+  "scythesorting.button_position.bottom_left": "Inferior Esquerdo",
+  "scythesorting.button_position.bottom_right": "Inferior Direito"
+}

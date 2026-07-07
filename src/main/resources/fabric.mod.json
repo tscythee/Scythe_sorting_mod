@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "id": "scythesorting",
+  "version": "${version}",
+  "name": "Scythe Sorting",
+  "description": "A client-side inventory sorting mod for Fabric 1.21.1. Sort your inventories quickly and efficiently.",
+  "authors": [
+    "ScytheSorting Team"
+  ],
+  "contact": {
+    "sources": "https://github.com/scythesorting/scythe-sorting"
+  },
+  "license": "MIT",
+  "icon": "assets/scythesorting/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.scythesorting.client.ScytheSortingClient"
+    ],
+    "modmenu": [
+      "com.scythesorting.config.ModMenuIntegration"
+    ]
+  },
+  "mixins": [
+    "scythesorting.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.0",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  },
+  "suggests": {
+    "cloth-config2": "*",
+    "modmenu": "*"
+  }
+}

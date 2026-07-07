@@ -1,0 +1,53 @@
+{
+  "_comment": "Scythe Sorting - English (US) localization",
+
+  "modmenu.nameTranslation.scythesorting": "Scythe Sorting",
+  "modmenu.descriptionTranslation.scythesorting": "A client-side inventory sorting mod. Sort your inventories quickly and efficiently.",
+
+  "key.scythesorting.sort": "Sort Inventory",
+  "category.scythesorting": "Scythe Sorting",
+
+  "scythesorting.button.sort": "Sort",
+  "scythesorting.button.sort.tooltip": "Sort Inventory",
+
+  "scythesorting.config.title": "Scythe Sorting Configuration",
+
+  "scythesorting.config.category.sorting": "Sorting",
+  "scythesorting.config.category.button": "Button",
+  "scythesorting.config.category.custom_order": "Custom Order",
+
+  "scythesorting.config.sorting_mode": "Sorting Mode",
+  "scythesorting.config.sorting_mode.tooltip": "Choose how items are sorted in the inventory.",
+  "scythesorting.config.ascending_order": "Ascending Order",
+  "scythesorting.config.ascending_order.tooltip": "Sort items in ascending order (A-Z, smallest first). Disable for descending order.",
+  "scythesorting.config.merge_stacks": "Merge Stacks Before Sorting",
+  "scythesorting.config.merge_stacks.tooltip": "Merge identical item stacks before sorting to free up inventory space.",
+  "scythesorting.config.remember_mode": "Remember Last Sorting Mode",
+  "scythesorting.config.remember_mode.tooltip": "Remember the last selected sorting mode across game sessions.",
+
+  "scythesorting.config.show_button": "Show Sort Button",
+  "scythesorting.config.show_button.tooltip": "Show the sort button in inventory GUIs.",
+  "scythesorting.config.button_position": "Button Position",
+  "scythesorting.config.button_position.tooltip": "Choose where the sort button appears in the inventory GUI.",
+  "scythesorting.config.play_sound": "Play Sound on Sort",
+  "scythesorting.config.play_sound.tooltip": "Play a click sound when sorting is triggered.",
+  "scythesorting.config.animate_button": "Animate Button",
+  "scythesorting.config.animate_button.tooltip": "Show a brief animation when the sort button is clicked.",
+
+  "scythesorting.config.custom_order": "Custom Category Order",
+  "scythesorting.config.custom_order.tooltip": "Define the order of item categories when using the Custom sorting mode. Use category names: BUILDING_BLOCKS, NATURAL_BLOCKS, ORES, INGOTS, GEMS, REDSTONE, WOOD, STONE, DECORATION, FOOD, FARMING, TOOLS, WEAPONS, ARMOR, POTIONS, UTILITY, MOB_DROPS, MISC.",
+
+  "scythesorting.sorting_mode.smart": "Smart (Default)",
+  "scythesorting.sorting_mode.quantity": "By Quantity",
+  "scythesorting.sorting_mode.alphabetical": "Alphabetical",
+  "scythesorting.sorting_mode.item_type": "By Item Type",
+  "scythesorting.sorting_mode.blocks_first": "Blocks First",
+  "scythesorting.sorting_mode.equipment_first": "Equipment First",
+  "scythesorting.sorting_mode.ores_and_resources": "Ores & Resources",
+  "scythesorting.sorting_mode.custom": "Custom Order",
+
+  "scythesorting.button_position.top_left": "Top Left",
+  "scythesorting.button_position.top_right": "Top Right",
+  "scythesorting.button_position.bottom_left": "Bottom Left",
+  "scythesorting.button_position.bottom_right": "Bottom Right"
+}
