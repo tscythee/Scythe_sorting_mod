@@ -30,4 +30,3 @@ jobs:
         with:
           name: scythe-sorting-jar
           path: build/libs/*.jar
-          fix gradle version
