@@ -36,7 +36,7 @@ public final class ItemStackUtil {
         if (a.isEmpty() || b.isEmpty()) return false;
         if (a.getItem() != b.getItem()) return false;
         // ItemStack.canCombine checks item equality and NBT/component equality
-        return ItemStack.canCombine(a, b);
+        return ItemStack.areItemsAndComponentsEqual(a, b);
     }
 
     /**
