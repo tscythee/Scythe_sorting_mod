@@ -15,7 +15,7 @@ public class SmartSortingAlgorithm implements SortingAlgorithm {
     @Override
     public Comparator<ItemStack> getComparator(boolean ascending) {
         Comparator<ItemStack> base = Comparator
-                .comparingInt(stack -> ItemCategorizer.categorize(stack.getItem()).getPriority())
+                .comparingInt((ItemStack stack) -> ItemCategorizer.categorize(stack.getItem()).getPriority())
                 .thenComparing(ItemStackUtil::getDisplayName);
 
         return ascending ? base : base.reversed();
