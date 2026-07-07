@@ -1,219 +1,243 @@
 package com.scythesorting.sorting;
 
-import com.scythesorting.algorithm.SortingAlgorithm;
-import com.scythesorting.config.ScytheSortingConfig;
-import com.scythesorting.registry.SortingAlgorithmRegistry;
-import com.scythesorting.util.ItemStackUtil;
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gui.screen.ingame.HandledScreen;
-import net.minecraft.client.network.ClientPlayerEntity;
-import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.item.ItemStack;
-import net.minecraft.screen.ScreenHandler;
-import net.minecraft.screen.slot.Slot;
-import net.minecraft.screen.slot.SlotActionType;
-import net.minecraft.sound.SoundEvents;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
+import net.minecraft.item.*;
+import net.minecraft.registry.Registries;
+import net.minecraft.util.Identifier;
 
 /**
- * Executes the full sorting pipeline for a given inventory section.
- *
- * <p>The pipeline consists of two phases:</p>
- * <ol>
- *   <li><strong>Stack merging</strong>: identical stacks are merged to free up slots.</li>
- *   <li><strong>Sorting</strong>: items are rearranged according to the active algorithm.</li>
- * </ol>
- *
- * <p>All interactions are performed via legitimate vanilla inventory click packets
- * ({@link net.minecraft.client.network.ClientPlayerInteractionManager#clickSlot}),
- * exactly as if the player were manually moving items. No server memory is accessed
- * or modified directly.</p>
- *
- * <p>A guard flag ({@link #isSorting}) prevents concurrent sorting operations.</p>
+ * Classifies Minecraft items into logical {@link ItemCategory} groups.
+ * This classification is used by the Smart and Custom sorting modes.
+ * The logic is based on item registry paths, item class types, and known item IDs.
  */
-public class SortingExecutor {
-
-    /** Prevents duplicate/concurrent sorting operations. */
-    private static final AtomicBoolean isSorting = new AtomicBoolean(false);
+public class ItemCategorizer {
 
     /**
-     * Returns {@code true} if a sorting operation is currently in progress.
-     */
-    public static boolean isSorting() {
-        return isSorting.get();
-    }
-
-    /**
-     * Initiates sorting for the given inventory section.
-     * This method is safe to call from the render thread.
+     * Returns the {@link ItemCategory} for the given {@link Item}.
      *
-     * @param screen  the currently open inventory screen
-     * @param section the inventory section to sort
+     * @param item the item to classify
+     * @return the appropriate category
      */
-    public static void sort(HandledScreen<?> screen, InventoryDetector.InventorySection section) {
-        if (!isSorting.compareAndSet(false, true)) {
-            return; // Already sorting
+    public static ItemCategory categorize(Item item) {
+        if (item == Items.AIR) return ItemCategory.MISC;
+
+        Identifier id = Registries.ITEM.getId(item);
+        String path = id.getPath();
+
+        // -----------------------------------------------------------------
+        // Potions
+        // -----------------------------------------------------------------
+        if (item instanceof PotionItem || item instanceof SplashPotionItem
+                || item instanceof LingeringPotionItem || item instanceof TippedArrowItem) {
+            return ItemCategory.POTIONS;
         }
 
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player == null || client.interactionManager == null) {
-            isSorting.set(false);
-            return;
+        // -----------------------------------------------------------------
+        // Armor
+        // -----------------------------------------------------------------
+        if (item instanceof ArmorItem) {
+            return ItemCategory.ARMOR;
         }
 
-        try {
-            ScytheSortingConfig config = ScytheSortingConfig.getInstance();
-            ScreenHandler handler = screen.getScreenHandler();
-            List<Slot> slots = section.slots();
-
-            // Phase 1: Merge identical stacks (if enabled)
-            if (config.mergeStacksBeforeSorting) {
-                mergeStacks(client, handler, slots);
-            }
-
-            // Phase 2: Sort items
-            SortingAlgorithm algorithm = SortingAlgorithmRegistry.get(config.sortingMode);
-            sortSlots(client, handler, slots, algorithm, config.ascendingOrder);
-
-            // Play sound (if enabled)
-            if (config.playSoundOnSort) {
-                client.getSoundManager().play(
-                        PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.5f));
-            }
-
-        } catch (Exception e) {
-            System.err.println("[ScytheSorting] Error during sorting: " + e.getMessage());
-        } finally {
-            isSorting.set(false);
+        // -----------------------------------------------------------------
+        // Weapons
+        // -----------------------------------------------------------------
+        if (item instanceof SwordItem || item instanceof BowItem || item instanceof CrossbowItem
+                || item instanceof TridentItem || item instanceof MaceItem) {
+            return ItemCategory.WEAPONS;
         }
+
+        // -----------------------------------------------------------------
+        // Tools
+        // -----------------------------------------------------------------
+        if (item instanceof ToolItem || item instanceof FishingRodItem
+                || item instanceof FlintAndSteelItem || item instanceof ShearsItem) {
+            return ItemCategory.TOOLS;
+        }
+
+        // -----------------------------------------------------------------
+        // Food
+        // -----------------------------------------------------------------
+        if (item.getComponents().contains(net.minecraft.component.DataComponentTypes.FOOD)) {
+            return ItemCategory.FOOD;
+        }
+
+        // -----------------------------------------------------------------
+        // Ores (by path keywords)
+        // -----------------------------------------------------------------
+        if (path.endsWith("_ore") || path.contains("raw_")) {
+            return ItemCategory.ORES;
+        }
+
+        // -----------------------------------------------------------------
+        // Ingots and Nuggets
+        // -----------------------------------------------------------------
+        if (path.endsWith("_ingot") || path.endsWith("_nugget") || path.endsWith("_scrap")
+                || path.equals("netherite_ingot") || path.equals("copper_ingot")) {
+            return ItemCategory.INGOTS;
+        }
+
+        // -----------------------------------------------------------------
+        // Gems
+        // -----------------------------------------------------------------
+        if (path.equals("diamond") || path.equals("emerald") || path.equals("amethyst_shard")
+                || path.equals("quartz") || path.equals("lapis_lazuli") || path.equals("prismarine_crystals")
+                || path.equals("prismarine_shard") || path.equals("nether_star")) {
+            return ItemCategory.GEMS;
+        }
+
+        // -----------------------------------------------------------------
+        // Redstone
+        // -----------------------------------------------------------------
+        if (path.equals("redstone") || path.equals("redstone_block") || path.equals("comparator")
+                || path.equals("repeater") || path.equals("observer") || path.equals("piston")
+                || path.equals("sticky_piston") || path.equals("lever") || path.equals("tripwire_hook")
+                || path.equals("target") || path.equals("daylight_detector") || path.equals("hopper")
+                || path.equals("dropper") || path.equals("dispenser") || path.equals("tnt")
+                || path.equals("redstone_torch") || path.equals("redstone_lamp")
+                || path.contains("pressure_plate") || path.contains("button")
+                || path.contains("trapdoor") || path.contains("door")) {
+            return ItemCategory.REDSTONE;
+        }
+
+        // -----------------------------------------------------------------
+        // Farming
+        // -----------------------------------------------------------------
+        if (path.endsWith("_seeds") || path.endsWith("_sapling") || path.endsWith("_bulb")
+                || path.equals("bone_meal") || path.equals("wheat") || path.equals("sugar_cane")
+                || path.equals("pumpkin") || path.equals("melon") || path.equals("cactus")
+                || path.equals("bamboo") || path.equals("kelp") || path.equals("sea_pickle")
+                || path.equals("lily_pad") || path.equals("flower_pot") || path.endsWith("_flower")
+                || path.endsWith("_tulip") || path.equals("dandelion") || path.equals("poppy")
+                || path.equals("blue_orchid") || path.equals("allium") || path.equals("azure_bluet")
+                || path.equals("oxeye_daisy") || path.equals("cornflower") || path.equals("lily_of_the_valley")
+                || path.equals("wither_rose") || path.endsWith("_mushroom") || path.equals("chorus_fruit")
+                || path.equals("chorus_flower") || path.equals("chorus_plant")
+                || path.equals("sweet_berries") || path.equals("glow_berries")) {
+            return ItemCategory.FARMING;
+        }
+
+        // -----------------------------------------------------------------
+        // Mob Drops
+        // -----------------------------------------------------------------
+        if (path.equals("bone") || path.equals("string") || path.equals("feather")
+                || path.equals("leather") || path.equals("ink_sac") || path.equals("glow_ink_sac")
+                || path.equals("slime_ball") || path.equals("blaze_rod") || path.equals("blaze_powder")
+                || path.equals("ender_pearl") || path.equals("ender_eye") || path.equals("ghast_tear")
+                || path.equals("magma_cream") || path.equals("spider_eye") || path.equals("fermented_spider_eye")
+                || path.equals("rotten_flesh") || path.equals("gunpowder") || path.equals("arrow")
+                || path.equals("spectral_arrow") || path.equals("rabbit_hide") || path.equals("rabbit_foot")
+                || path.equals("phantom_membrane") || path.equals("turtle_scute") || path.equals("armadillo_scute")
+                || path.equals("shulker_shell") || path.equals("nautilus_shell") || path.equals("heart_of_the_sea")
+                || path.equals("dragon_breath") || path.equals("totem_of_undying")
+                || path.equals("wither_skeleton_skull") || path.equals("creeper_head")
+                || path.equals("zombie_head") || path.equals("skeleton_skull") || path.equals("player_head")) {
+            return ItemCategory.MOB_DROPS;
+        }
+
+        // -----------------------------------------------------------------
+        // Utility items
+        // -----------------------------------------------------------------
+        if (item instanceof BucketItem || item instanceof BoatItem || item instanceof MinecartItem
+                || path.equals("compass") || path.equals("clock") || path.equals("map")
+                || path.equals("filled_map") || path.equals("book") || path.equals("written_book")
+                || path.equals("writable_book") || path.equals("enchanted_book")
+                || path.equals("name_tag") || path.equals("lead") || path.equals("saddle")
+                || path.equals("horse_armor") || path.endsWith("_horse_armor")
+                || path.equals("elytra") || path.equals("shield") || path.equals("spyglass")
+                || path.equals("recovery_compass") || path.equals("echo_shard")
+                || path.equals("bundle") || path.equals("lantern") || path.equals("soul_lantern")
+                || path.equals("torch") || path.equals("soul_torch") || path.equals("campfire")
+                || path.equals("soul_campfire") || path.equals("crafting_table")
+                || path.equals("furnace") || path.equals("blast_furnace") || path.equals("smoker")
+                || path.equals("anvil") || path.equals("chipped_anvil") || path.equals("damaged_anvil")
+                || path.equals("grindstone") || path.equals("smithing_table") || path.equals("loom")
+                || path.equals("cartography_table") || path.equals("fletching_table")
+                || path.equals("stonecutter") || path.equals("brewing_stand") || path.equals("cauldron")
+                || path.equals("water_cauldron") || path.equals("lava_cauldron") || path.equals("powder_snow_cauldron")
+                || path.equals("enchanting_table") || path.equals("bookshelf")
+                || path.equals("chiseled_bookshelf") || path.equals("chest") || path.equals("trapped_chest")
+                || path.equals("barrel") || path.equals("shulker_box") || path.endsWith("_shulker_box")
+                || path.equals("ender_chest") || path.equals("hopper") || path.equals("dropper")
+                || path.equals("dispenser")) {
+            return ItemCategory.UTILITY;
+        }
+
+        // -----------------------------------------------------------------
+        // Wood (logs, planks, slabs, stairs, fences, etc.)
+        // -----------------------------------------------------------------
+        if (path.endsWith("_log") || path.endsWith("_wood") || path.endsWith("_planks")
+                || path.endsWith("_slab") && isWoodType(path) || path.endsWith("_stairs") && isWoodType(path)
+                || path.endsWith("_fence") || path.endsWith("_fence_gate")
+                || path.endsWith("_sign") || path.endsWith("_hanging_sign")
+                || path.endsWith("_stripped_log") || path.endsWith("_stripped_wood")) {
+            return ItemCategory.WOOD;
+        }
+
+        // -----------------------------------------------------------------
+        // Stone (cobblestone, stone bricks, deepslate, etc.)
+        // -----------------------------------------------------------------
+        if (path.contains("stone") || path.contains("cobblestone") || path.contains("deepslate")
+                || path.contains("basalt") || path.contains("blackstone") || path.contains("granite")
+                || path.contains("diorite") || path.contains("andesite") || path.contains("tuff")
+                || path.contains("calcite") || path.contains("dripstone") || path.contains("sandstone")
+                || path.contains("red_sandstone") || path.contains("prismarine") || path.contains("purpur")
+                || path.contains("end_stone") || path.contains("nether_brick") || path.contains("quartz_block")
+                || path.contains("smooth_quartz") || path.contains("cut_sandstone")) {
+            return ItemCategory.STONE;
+        }
+
+        // -----------------------------------------------------------------
+        // Natural Blocks (dirt, grass, sand, gravel, clay, etc.)
+        // -----------------------------------------------------------------
+        if (path.equals("dirt") || path.equals("grass_block") || path.equals("coarse_dirt")
+                || path.equals("podzol") || path.equals("mycelium") || path.equals("rooted_dirt")
+                || path.equals("mud") || path.equals("muddy_mangrove_roots") || path.equals("sand")
+                || path.equals("red_sand") || path.equals("gravel") || path.equals("clay")
+                || path.equals("snow") || path.equals("snow_block") || path.equals("ice")
+                || path.equals("packed_ice") || path.equals("blue_ice") || path.equals("powder_snow")
+                || path.equals("soul_sand") || path.equals("soul_soil") || path.equals("netherrack")
+                || path.equals("magma_block") || path.equals("crimson_nylium") || path.equals("warped_nylium")
+                || path.equals("end_stone") || path.equals("obsidian") || path.equals("crying_obsidian")
+                || path.equals("bedrock") || path.equals("sponge") || path.equals("wet_sponge")
+                || path.equals("moss_block") || path.equals("moss_carpet") || path.equals("sculk")
+                || path.equals("sculk_vein") || path.equals("sculk_catalyst") || path.equals("sculk_shrieker")
+                || path.equals("sculk_sensor") || path.equals("calibrated_sculk_sensor")) {
+            return ItemCategory.NATURAL_BLOCKS;
+        }
+
+        // -----------------------------------------------------------------
+        // Decoration
+        // -----------------------------------------------------------------
+        if (path.contains("glass") || path.contains("carpet") || path.contains("banner")
+                || path.contains("bed") || path.contains("painting") || path.contains("frame")
+                || path.contains("candle") || path.contains("dye") || path.contains("concrete")
+                || path.contains("terracotta") || path.contains("glazed") || path.contains("wool")
+                || path.contains("stained") || path.contains("coral") || path.contains("sea_lantern")
+                || path.contains("glowstone") || path.contains("shroomlight")
+                || path.contains("froglight") || path.contains("amethyst")
+                || path.contains("tinted_glass") || path.contains("chain") || path.contains("bell")
+                || path.contains("conduit") || path.contains("beacon") || path.contains("jukebox")
+                || path.contains("note_block") || path.contains("music_disc")) {
+            return ItemCategory.DECORATION;
+        }
+
+        // -----------------------------------------------------------------
+        // Building Blocks (generic fallback for block items)
+        // -----------------------------------------------------------------
+        if (item instanceof BlockItem) {
+            return ItemCategory.BUILDING_BLOCKS;
+        }
+
+        return ItemCategory.MISC;
     }
-
-    // -------------------------------------------------------------------------
-    // Phase 1: Stack Merging
-    // -------------------------------------------------------------------------
 
     /**
-     * Merges identical stacks within the given slot list.
-     * Uses vanilla shift-click and drag mechanics via click packets.
+     * Heuristic check: does the given path belong to a wood-type item?
      */
-    private static void mergeStacks(MinecraftClient client, ScreenHandler handler, List<Slot> slots) {
-        ClientPlayerEntity player = client.player;
-        if (player == null) return;
-
-        int syncId = handler.syncId;
-
-        for (int i = 0; i < slots.size(); i++) {
-            Slot source = slots.get(i);
-            ItemStack sourceStack = source.getStack();
-            if (sourceStack.isEmpty()) continue;
-
-            for (int j = i + 1; j < slots.size(); j++) {
-                Slot target = slots.get(j);
-                ItemStack targetStack = target.getStack();
-                if (targetStack.isEmpty()) continue;
-
-                int transferable = ItemStackUtil.getTransferableCount(targetStack, sourceStack);
-                if (transferable <= 0) continue;
-
-                // Pick up source stack
-                client.interactionManager.clickSlot(syncId, source.id, 0, SlotActionType.PICKUP, player);
-                // Place onto target (partial or full merge)
-                client.interactionManager.clickSlot(syncId, target.id, 0, SlotActionType.PICKUP, player);
-                // If source was not fully merged, put remainder back
-                if (!handler.getCursorStack().isEmpty()) {
-                    client.interactionManager.clickSlot(syncId, source.id, 0, SlotActionType.PICKUP, player);
-                }
-            }
-        }
+    private static boolean isWoodType(String path) {
+        return path.contains("oak") || path.contains("spruce") || path.contains("birch")
+                || path.contains("jungle") || path.contains("acacia") || path.contains("dark_oak")
+                || path.contains("cherry") || path.contains("mangrove") || path.contains("bamboo")
+                || path.contains("crimson") || path.contains("warped");
     }
-
-    // -------------------------------------------------------------------------
-    // Phase 2: Sorting
-    // -------------------------------------------------------------------------
-
-    /**
-     * Sorts the items in the given slots according to the provided algorithm.
-     * Computes the optimal move plan before executing any click packets.
-     */
-    private static void sortSlots(MinecraftClient client, ScreenHandler handler,
-                                   List<Slot> slots, SortingAlgorithm algorithm, boolean ascending) {
-        ClientPlayerEntity player = client.player;
-        if (player == null) return;
-
-        // Snapshot current contents
-        List<ItemStack> contents = new ArrayList<>();
-        for (Slot slot : slots) {
-            contents.add(slot.getStack().copy());
-        }
-
-        // Compute sorted order
-        List<ItemStack> sorted = new ArrayList<>(contents);
-        algorithm.sort(sorted, ascending);
-
-        // Execute moves: for each target position, find the current slot holding
-        // the desired item and swap it into place using pickup clicks.
-        int syncId = handler.syncId;
-
-        // We work with a mutable copy of slot indices to track current positions
-        List<ItemStack> current = new ArrayList<>(contents);
-
-        for (int targetIdx = 0; targetIdx < slots.size(); targetIdx++) {
-            ItemStack desired = sorted.get(targetIdx);
-            ItemStack currentAtTarget = current.get(targetIdx);
-
-            if (desired.isEmpty() && currentAtTarget.isEmpty()) continue;
-            if (!desired.isEmpty() && ItemStack.areItemsAndComponentsEqual(desired, currentAtTarget)
-                    && desired.getCount() == currentAtTarget.getCount()) {
-                continue; // Already in correct position
             }
-
-            // Find where the desired item currently is
-            int sourceIdx = findStack(current, desired, targetIdx);
-            if (sourceIdx < 0) continue;
-
-            // Perform swap: pick up source, place at target, put displaced item at source
-            Slot sourceSlot = slots.get(sourceIdx);
-            Slot targetSlot = slots.get(targetIdx);
-
-            // Pick up source
-            client.interactionManager.clickSlot(syncId, sourceSlot.id, 0, SlotActionType.PICKUP, player);
-            // Place at target (picks up whatever was there)
-            client.interactionManager.clickSlot(syncId, targetSlot.id, 0, SlotActionType.PICKUP, player);
-            // If something was displaced, put it at the source slot
-            if (!handler.getCursorStack().isEmpty()) {
-                client.interactionManager.clickSlot(syncId, sourceSlot.id, 0, SlotActionType.PICKUP, player);
-            }
-
-            // Update our local tracking
-            ItemStack displaced = current.get(targetIdx);
-            current.set(targetIdx, current.get(sourceIdx));
-            current.set(sourceIdx, displaced);
-        }
-    }
-
-    /**
-     * Finds the index of the first slot in {@code current} (starting from {@code startFrom})
-     * that holds a stack matching {@code desired}.
-     */
-    private static int findStack(List<ItemStack> current, ItemStack desired, int startFrom) {
-        for (int i = startFrom; i < current.size(); i++) {
-            ItemStack stack = current.get(i);
-            if (!stack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, desired)
-                    && stack.getCount() == desired.getCount()) {
-                return i;
-            }
-        }
-        // Fallback: search from beginning (in case of duplicates)
-        for (int i = 0; i < startFrom; i++) {
-            ItemStack stack = current.get(i);
-            if (!stack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, desired)
-                    && stack.getCount() == desired.getCount()) {
-                return i;
-            }
-        }
-        return -1;
-    }
-}
