@@ -20,7 +20,7 @@ public class CustomSortingAlgorithm implements SortingAlgorithm {
         List<String> order = ScytheSortingConfig.getInstance().customCategoryOrder;
 
         Comparator<ItemStack> base = Comparator
-                .comparingInt(stack -> getCustomPriority(stack, order))
+                .comparingInt((ItemStack stack) -> getCustomPriority(stack, order))
                 .thenComparing(ItemStackUtil::getDisplayName);
 
         return ascending ? base : base.reversed();
