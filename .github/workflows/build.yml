@@ -19,6 +19,8 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.8'
 
       - name: Build mod
         run: gradle build
@@ -28,3 +30,4 @@ jobs:
         with:
           name: scythe-sorting-jar
           path: build/libs/*.jar
+          fix gradle version
