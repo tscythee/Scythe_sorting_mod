@@ -15,7 +15,7 @@ public class ItemTypeSortingAlgorithm implements SortingAlgorithm {
     @Override
     public Comparator<ItemStack> getComparator(boolean ascending) {
         Comparator<ItemStack> base = Comparator
-                .comparing(stack -> Registries.ITEM.getId(stack.getItem()).getNamespace())
+                .comparing((ItemStack stack) -> Registries.ITEM.getId(stack.getItem()).getNamespace())
                 .thenComparing(ItemStackUtil::getDisplayName);
 
         return ascending ? base : base.reversed();
