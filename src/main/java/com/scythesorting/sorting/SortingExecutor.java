@@ -81,7 +81,7 @@ public class SortingExecutor {
             // Play sound (if enabled)
             if (config.playSoundOnSort) {
                 client.getSoundManager().play(
-                        PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0f, 0.5f));
+                        PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK.value(), 1.0f, 0.5f));
             }
 
         } catch (Exception e) {
@@ -165,7 +165,7 @@ public class SortingExecutor {
             ItemStack currentAtTarget = current.get(targetIdx);
 
             if (desired.isEmpty() && currentAtTarget.isEmpty()) continue;
-            if (!desired.isEmpty() && ItemStack.canCombine(desired, currentAtTarget)
+            if (!desired.isEmpty() && ItemStack.areItemsAndComponentsEqual(desired, currentAtTarget)
                     && desired.getCount() == currentAtTarget.getCount()) {
                 continue; // Already in correct position
             }
@@ -201,7 +201,7 @@ public class SortingExecutor {
     private static int findStack(List<ItemStack> current, ItemStack desired, int startFrom) {
         for (int i = startFrom; i < current.size(); i++) {
             ItemStack stack = current.get(i);
-            if (!stack.isEmpty() && ItemStack.canCombine(stack, desired)
+            if (!stack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, desired)
                     && stack.getCount() == desired.getCount()) {
                 return i;
             }
@@ -209,7 +209,7 @@ public class SortingExecutor {
         // Fallback: search from beginning (in case of duplicates)
         for (int i = 0; i < startFrom; i++) {
             ItemStack stack = current.get(i);
-            if (!stack.isEmpty() && ItemStack.canCombine(stack, desired)
+            if (!stack.isEmpty() && ItemStack.areItemsAndComponentsEqual(stack, desired)
                     && stack.getCount() == desired.getCount()) {
                 return i;
             }
